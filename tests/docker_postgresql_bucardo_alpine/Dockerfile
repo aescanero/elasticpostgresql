@@ -22,14 +22,16 @@ RUN mkdir -p /data/pids && mkdir /data/logs && \
   && tar -zxvf Bucardo-5.4.1.tar.gz && cd Bucardo-5.4.1 && perl Makefile.PL \
   && make && make install && mkdir -p /var/run/bucardo && mkdir -p /var/log/bucardo
 
-ADD usr/local/sbin/run.sh /usr/local/sbin/run.sh
 ADD usr/local/sbin/precheck.sh /usr/local/sbin/precheck.sh
 ADD usr/local/sbin/postcheck.py /usr/local/sbin/postcheck.py
+ADD db/zabbix/data.sql /data/build/zabbix/data.sql
+ADD db/zabbix/images.sql /data/build/zabbix/images.sql
+ADD db/zabbix/schema.sql /data/build/zabbix/schema.sql
 ADD etc/supervisord.conf /etc/supervisord.conf
+ADD etc/zabbix/zabbix_agentd.conf /etc/zabbix/zabbix_agentd.conf
 
 RUN chmod u+x /usr/local/sbin/precheck.sh \
-    && chmod u+x /usr/local/sbin/postcheck.py \
-    && chmod u+x /usr/local/sbin/run.sh
+    && chmod u+x /usr/local/sbin/postcheck.py
 
 WORKDIR /data
 ENTRYPOINT ["supervisord", "--nodaemon", "--configuration", "/etc/supervisord.conf"]

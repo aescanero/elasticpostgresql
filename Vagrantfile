@@ -20,7 +20,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       end
       srv.vm.network :private_network, ip: servers["ip"]
       srv.vm.hostname = servers["name"]
-      srv.vm.synced_folder "./dnsmasq", "/home/ubuntu/dnsmasq"
+#      srv.vm.synced_folder "./dnsmasq", "/home/ubuntu/dnsmasq"
       srv.vm.synced_folder "./docker", "/home/ubuntu/docker"
       srv.vm.synced_folder "./tests", "/home/ubuntu/tests"
       srv.vm.provision :shell, inline: "mkswap -f /swapfile && swapon /swapfile"
