@@ -11,7 +11,7 @@ LABEL maintainer="Alejandro Escanero Blanco <aescanero@gmail.com>" \
 RUN apk update && apk add -u python py2-pip zabbix-pgsql zabbix-setup \
  zabbix-utils zabbix-agent 
 
-RUN apk add zabbix-webif php7-fpm nginx php7-pgsql php7-session php7-mbstring \
+RUN apk add zabbix-webif php7-fpm nginx php7-pgsql php7-session php7-mbstring php7-simplexml\
  && pip install supervisor && rm -rf /var/cache/apk/*
 
 RUN sed -i -e 's/post_max_size = [0-9]*M/post_max_size = 16M/' \

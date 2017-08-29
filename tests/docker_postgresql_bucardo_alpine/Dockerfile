@@ -16,17 +16,26 @@ RUN apk update && apk add -u python py2-pip postgresql bash perl-dbd-pg \
 RUN mkdir -p /data/pids && mkdir /data/logs && \
   mkdir /data/vol && mkdir /data/build && cd /data/build \
   && wget --no-check-certificate http://bucardo.org/downloads/dbix_safe.tar.gz \
-  && tar xvfz dbix_safe.tar.gz && cd DBIx* && perl Makefile.PL && make \
+  && tar xfz dbix_safe.tar.gz && cd DBIx* && perl Makefile.PL && make \
   && make install && cd .. \
   && wget --no-check-certificate http://bucardo.org/downloads/Bucardo-5.4.1.tar.gz \
-  && tar -zxvf Bucardo-5.4.1.tar.gz && cd Bucardo-5.4.1 && perl Makefile.PL \
+  && tar zxf Bucardo-5.4.1.tar.gz && cd Bucardo-5.4.1 && perl Makefile.PL \
   && make && make install && mkdir -p /var/run/bucardo && mkdir -p /var/log/bucardo
+
+RUN cd /data/build && mkdir -p /usr/local/bin && mkdir -p /usr/local/etc \
+  && wget --no-check-certificate https://github.com/pg-monz/pg_monz/archive/2.0.1.tar.gz \
+  && tar zxf 2.0.1.tar.gz && cp pg_monz-2.0.1/pg_monz/usr-local-bin/* /usr/local/bin/. \
+  && cp pg_monz-2.0.1/pg_monz/usr-local-etc/* /usr/local/etc/. \
+  && mkdir /etc/zabbix/zabbix_agentd.d && chown zabbix /etc/zabbix/zabbix_agentd.d \
+  && echo "Include=/etc/zabbix/zabbix_agentd.d/" >>/etc/zabbix/zabbix_agentd.conf \
+  && cp pg_monz-2.0.1/pg_monz/zabbix_agentd.d/* /etc/zabbix/zabbix_agentd.d/.
 
 ADD usr/local/sbin/precheck.sh /usr/local/sbin/precheck.sh
 ADD usr/local/sbin/postcheck.py /usr/local/sbin/postcheck.py
-ADD db/zabbix/data.sql /data/build/zabbix/data.sql
-ADD db/zabbix/images.sql /data/build/zabbix/images.sql
-ADD db/zabbix/schema.sql /data/build/zabbix/schema.sql
+ADD db/zabbix/zabbix.dump.gz /data/build/zabbix/zabbix.dump.gz
+#ADD db/zabbix/data.sql /data/build/zabbix/data.sql
+#ADD db/zabbix/images.sql /data/build/zabbix/images.sql
+#ADD db/zabbix/schema.sql /data/build/zabbix/schema.sql
 ADD etc/supervisord.conf /etc/supervisord.conf
 ADD etc/zabbix/zabbix_agentd.conf /etc/zabbix/zabbix_agentd.conf
 
