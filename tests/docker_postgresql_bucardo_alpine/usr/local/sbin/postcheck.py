@@ -6,10 +6,9 @@ import socket
 import re
 import subprocess
 import sys
-from restful_lib import Connection
 from subprocess import check_output
 
-LOGLEVEL = 0
+LOGLEVEL = 10
 
 def log (msg = "", level = 10):
     if (LOGLEVEL >= level):
@@ -18,35 +17,35 @@ def log (msg = "", level = 10):
 def do_something():
     while True:
 
-        hostname = check_output("hostname")
-        tasks = check_output(["/usr/bin/nslookup","tasks.postgresql"], shell=True)
-        tasks = split(out,"\n")
-#     3  bucardo install --batch
-#    4  bucardo show
-#    5  bucardo show all
-#   11  su postgres -c createdb test1
-#   16  bucardo add db test1 dbname=test1
-#   17  bucardo add db test2 dbname=test2
-#   18  bucardo add all tables db=test1 -T history --herd=alpha --verbose
+        hostname = check_output("hostname").rstrip()
+        tasks = check_output(["/usr/bin/nslookup tasks.postgresql 2>/dev/null"], shell=True)
+        tasks = tasks.split("\n")
 #   23  bucardo add sync benchdelta relgroup=alpha dbs=test1:source,test2:target
 
-        activeContainers = {}
-        activeContainers["data"] = {}
-        activeContainers["data"]["containerList"] = []
+#        activeContainers = {}
+#        activeContainers["data"] = {}
+#        activeContainers["data"]["containerList"] = []
         i = 0
         myId = -1
         for task in tasks:
-            node = re.search("Address\ (\d{1,3}):\ (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\ (.*)$",out)
+            node = re.search("Address\ (\d{1,3}):\ (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\ (.*)$", task)
             if node is not None:
                 id = node.group(1)
+                log ("res3: %s" % id, 10)
                 ip = node.group(2)
+                log ("res4: %s" % ip, 10)
                 nodename = node.group(3)
                 if hostname == nodename:
+                    log ("res5 :%s:%s:" % (hostname, nodename), 10)
                     myId = id
-                activeContainers["data"]["containerList"][i] = {}
-                activeContainers["data"]["containerList"][i]["ip"] = ip
-                activeContainers["data"]["containerList"][i]["id"] = id
-        log ("myId: %s" % myId, 10)
+#                else
+#                    check = check_output(["/usr/local/bin/bucardo add sync benchdelta relgroup=alpha dbs=test1:source,test2:target"], shell=True)
+#                    update = check_output(["/usr/local/bin/bucardo add sync benchdelta relgroup=alpha dbs=test1:source,test2:target"], shell=True)
+                
+#                activeContainers["data"]["containerList"][i] = {}
+#                activeContainers["data"]["containerList"][i]["ip"] = ip
+#                activeContainers["data"]["containerList"][i]["id"] = id
+#        log ("myId: %s" % myId, 10)
 #        if myId == -1:
 #            killTheContainer()
 #        else:

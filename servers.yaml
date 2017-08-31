@@ -8,7 +8,7 @@
       - { guest: 3000, host: 3001 }
       - { guest: 3100, host: 3002 }
       - { guest: 3200, host: 3003 }
-  ram: 512
+  ram: 768
   shell_commands:
     - { shell: 'service docker reload' }
     - { shell: 'docker swarm init --advertise-addr "192.168.8.2" --listen-addr "192.168.8.2:2377" >/dev/null' }
@@ -23,7 +23,7 @@
       - { guest: 3000, host: 3004 }
       - { guest: 3100, host: 3005 }
       - { guest: 3200, host: 3006 }
-  ram: 512
+  ram: 768
   shell_commands:
     - { shell: 'service docker reload' }
     - { shell: 'key=`cat /home/ubuntu/tests/key.manager`;docker swarm join --advertise-addr "192.168.8.3" --listen-addr "192.168.8.3:2377" --token $key 192.168.8.2' }
@@ -36,7 +36,7 @@
       - { guest: 3000, host: 3007 }
       - { guest: 3100, host: 3008 }
       - { guest: 3200, host: 3009 }
-  ram: 256
+  ram: 512
   shell_commands:
     - { shell: 'service docker reload' }
     - { shell: 'key=`cat /home/ubuntu/tests/key.node`;docker swarm join --token $key 192.168.8.2' }
@@ -49,7 +49,7 @@
       - { guest: 3000, host: 3010 }
       - { guest: 3100, host: 3011 }
       - { guest: 3200, host: 3012 }
-  ram: 256
+  ram: 512
   shell_commands:
     - { shell: 'service docker reload' }
     - { shell: 'key=`cat /home/ubuntu/tests/key.node`;docker swarm join --token $key 192.168.8.2' }
@@ -62,7 +62,7 @@
       - { guest: 3000, host: 3013 }
       - { guest: 3100, host: 3014 }
       - { guest: 3200, host: 3015 }
-  ram: 256
+  ram: 512
   shell_commands:
     - { shell: 'service docker reload' }
     - { shell: 'key=`cat /home/ubuntu/tests/key.node`;docker swarm join --token $key 192.168.8.2' }

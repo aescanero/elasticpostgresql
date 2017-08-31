@@ -2,6 +2,7 @@
 
 cd ~/tests/
 sudo docker build -t elasticpostgresql:psql_v1 -f docker_postgresql_bucardo_alpine/Dockerfile docker_postgresql_bucardo_alpine/.
+sudo docker build -t elasticpostgresql:psql_v2 -f docker_postgresql_pgpool_alpine/Dockerfile docker_postgresql_pgpool_alpine/.
 sudo docker build -t elasticpostgresql:zabbix_v1 -f docker_zabbix/Dockerfile docker_zabbix/.
 sudo docker network create -d overlay registrynetwork
 sudo docker service create --detach=true --endpoint-mode vip --network registrynetwork --publish 5000:5000 --restart-condition any --name registry registry:2

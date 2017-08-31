@@ -1,6 +1,8 @@
 #!/bin/sh
 
-n=$(nslookup tasks.postgresql|grep `hostname` |sed s/\://|awk '{print $2}') 2>/dev/null
+n=$(nslookup tasks.postgresql 2>/dev/null|grep `hostname` |sed s/\://|awk '{print $2}')
+myip=$(nslookup tasks.postgresql 2>/dev/null|grep `hostname` |sed s/\://|awk '{print $3}')
+restip=$(nslookup tasks.postgresql 2>/dev/null|sed s/\://|awk '{print $3}'|grep -v ^$|grep -v $myip|tr '\n' ' ')
 HOSTNAME=`hostname`
 DIRNAME=`echo postgresql.${n}`
 
@@ -41,5 +43,43 @@ then
 #  Host IP: {HOST.IP}
 #  Agent port: {HOST.PORT}\', \'\', \'\', \'\', 1)\; |psql"
 fi
-supervisorctl start postcheck.py
+echo "Hostname=$DIRNAME" >>/etc/zabbix/zabbix_agentd.conf
+supervisorctl start zabbix_agentd &
 
+if bucardo show 2>&1 |grep FATAL >/dev/null
+then
+cat > $HOME/.bucardorc <<EOL  
+dbhost=127.0.0.1
+dbname=bucardo
+dbport=5432
+dbuser=bucardo
+bdpass=bucardo
+batch=1
+verbose=1
+EOL
+  bucardo install --bucardorc $HOME/.bucardorc --batch
+  su - postgres -c "echo ALTER ROLE bucardo PASSWORD \'bucardo\'\;|psql"
+  echo "*:5432:*:bucardo:bucardo" >$HOME/.pgpass
+#  bucardo add db db.${n} dbname=zabbix
+  nslookup tasks.postgresql 2>/dev/null|sed s/\://|grep -v ^$|grep -v tasks \
+  |awk '{print "/usr/local/bin/bucardo add db db_"$2" dbhost="$3" dbname=zabbix --force"}' \
+  |sed s/"$myip"/'127.0.0.1'/|while read l
+  do
+    echo "$l"
+    $l
+  done
+#  bucardo add all tables db=db.${n} -T history --herd=alpha
+  echo bucardo add all tables db=db_${n} relgroup=alpha
+  bucardo add all tables db=db_${n} relgroup=alpha
+  nslookup tasks.postgresql 2>/dev/null |sed s/\://|grep -v ^$ |grep -v tasks \
+  |grep -v ^"Address $n" \
+  |awk '{print "/usr/local/bin/bucardo add sync benchdelta_"$2" relgroup=alpha dbs=db_#:source,db_"$2":target"}' \
+  |sed s/\#/$n/|while read l
+  do
+    echo "$l"
+    $l
+  done
+  bucardo start  
+fi
+
+supervisorctl start postcheck.py

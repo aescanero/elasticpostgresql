@@ -10,7 +10,7 @@ LABEL maintainer="Alejandro Escanero Blanco <aescanero@gmail.com>" \
 
 RUN apk update && apk add -u python py2-pip postgresql bash perl-dbd-pg \
  postgresql-plperl perl-boolean make perl-dbi wget zabbix-agent\
- && pip install supervisor \
+ && pip install supervisor python-daemon\
  && rm -rf /var/cache/apk/*
 
 RUN mkdir -p /data/pids && mkdir /data/logs && \
