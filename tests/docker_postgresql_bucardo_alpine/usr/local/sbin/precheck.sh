@@ -1,8 +1,13 @@
 #!/bin/sh
 
 n=$(nslookup tasks.postgresql 2>/dev/null|grep `hostname` |sed s/\://|awk '{print $2}')
+echo $n
 myip=$(nslookup tasks.postgresql 2>/dev/null|grep `hostname` |sed s/\://|awk '{print $3}')
+echo $myip
+mynet=$(echo -n $myip|cut -d\. -f -3)".0/24"
+echo $mynet
 restip=$(nslookup tasks.postgresql 2>/dev/null|sed s/\://|awk '{print $3}'|grep -v ^$|grep -v $myip|tr '\n' ' ')
+echo $restip
 HOSTNAME=`hostname`
 DIRNAME=`echo postgresql.${n}`
 
@@ -15,6 +20,7 @@ then
   mkdir -p /run/postgresql && chown postgres /run/postgresql
   su postgres -c "/usr/bin/initdb --pgdata /data/postgresql/" 
   echo "listen_addresses ='*'" >>/data/postgresql/postgresql.conf
+  echo "host    zabbix             all             $mynet            trust" >>/data/postgresql/pg_hba.conf
   echo "host    all             all             0/0            md5" >>/data/postgresql/pg_hba.conf
 else
   ln -s /data/vol/${DIRNAME} /data/postgresql
@@ -60,7 +66,7 @@ EOL
   bucardo install --bucardorc $HOME/.bucardorc --batch
   su - postgres -c "echo ALTER ROLE bucardo PASSWORD \'bucardo\'\;|psql"
   echo "*:5432:*:bucardo:bucardo" >$HOME/.pgpass
-#  bucardo add db db.${n} dbname=zabbix
+  #bucardo add db db_${n} dbname=zabbix
   nslookup tasks.postgresql 2>/dev/null|sed s/\://|grep -v ^$|grep -v tasks \
   |awk '{print "/usr/local/bin/bucardo add db db_"$2" dbhost="$3" dbname=zabbix --force"}' \
   |sed s/"$myip"/'127.0.0.1'/|while read l
@@ -68,9 +74,12 @@ EOL
     echo "$l"
     $l
   done
-#  bucardo add all tables db=db.${n} -T history --herd=alpha
-  echo bucardo add all tables db=db_${n} relgroup=alpha
-  bucardo add all tables db=db_${n} relgroup=alpha
+#check tables with primary key
+  tables=`echo "select concat(tc.table_schema,'.',tc.table_name) as table from information_schema.table_constraints tc where tc.constraint_type = 'PRIMARY KEY' group by tc.table_schema,tc.table_name;"|psql -U zabbix zabbix -t|tr '\n' ' '`
+  echo bucardo add table $tables db=db_${n} -T history herd=alpha
+  bucardo add table $tables db=db_1 -T history herd=alpha
+#  echo bucardo add all tables db=db_${n} relgroup=alpha
+#  bucardo add all tables db=db_${n} relgroup=alpha
   nslookup tasks.postgresql 2>/dev/null |sed s/\://|grep -v ^$ |grep -v tasks \
   |grep -v ^"Address $n" \
   |awk '{print "/usr/local/bin/bucardo add sync benchdelta_"$2" relgroup=alpha dbs=db_#:source,db_"$2":target"}' \
