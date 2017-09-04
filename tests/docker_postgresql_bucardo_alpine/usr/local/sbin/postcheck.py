@@ -27,29 +27,35 @@ def do_something():
 #        activeContainers["data"]["containerList"] = []
         i = 0
         myId = -1
+        active = {}
+        newactive = {}
         for task in tasks:
             node = re.search("Address\ (\d{1,3}):\ (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\ (.*)$", task)
             if node is not None:
                 id = node.group(1)
-                log ("res3: %s" % id, 10)
                 ip = node.group(2)
-                log ("res4: %s" % ip, 10)
                 nodename = node.group(3)
                 if hostname == nodename:
                     log ("res5 :%s:%s:" % (hostname, nodename), 10)
                     myId = id
-#                else
-#                    check = check_output(["/usr/local/bin/bucardo add sync benchdelta relgroup=alpha dbs=test1:source,test2:target"], shell=True)
-#                    update = check_output(["/usr/local/bin/bucardo add sync benchdelta relgroup=alpha dbs=test1:source,test2:target"], shell=True)
-                
-#                activeContainers["data"]["containerList"][i] = {}
-#                activeContainers["data"]["containerList"][i]["ip"] = ip
-#                activeContainers["data"]["containerList"][i]["id"] = id
-#        log ("myId: %s" % myId, 10)
-#        if myId == -1:
-#            killTheContainer()
-#        else:
-#            configureReplication (activeContainers, myId)
+                else:
+                    log ("actualmente activa: %s,%s" % (id,ip), 10)
+                    newactive[id] = ip
+
+        for key in active:
+            if key not in newactive:
+                #key ha sido eliminado
+                log ("del: /usr/local/bin/bucardo remove sync benchdelta_%s" % key , 10)
+                check_output(["/usr/local/bin/bucardo remove sync benchdelta_%s" % key ], shell=True)
+
+        for key in newactive:
+            if key not in active:
+                #key ha sido anadido
+                log ("add: /usr/local/bin/bucardo add sync benchdelta_%s relgroup=alpha dbs=db_1:source,db_%s:target" % (key,key), 10)
+                check_output(["/usr/local/bin/bucardo add sync benchdelta_%s relgroup=alpha dbs=db_1:source,db_%s:target" % (key,key) ], shell=True)
+
+        active = newactive
+
 
         time.sleep(10)
 
@@ -66,4 +72,3 @@ def run():
 
 if __name__ == "__main__":
     do_something()
-
