@@ -1,7 +1,7 @@
 version: '3.1'
 services:
   postgresql:
-    image: elasticpostgresql:psql_v1
+    image: localhost:5000/elasticpostgresql:psql_v1
     deploy:
       mode: replicated
       replicas: 2
@@ -21,7 +21,7 @@ services:
       - be
 
   zabbix:
-    image: elasticpostgresql:zabbix_v1
+    image: localhost:5000/elasticpostgresql:zabbix_v1
     deploy:
       placement:
         constraints:

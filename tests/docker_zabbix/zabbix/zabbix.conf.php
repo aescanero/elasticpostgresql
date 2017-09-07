@@ -3,7 +3,7 @@
 global $DB;
 
 $DB['TYPE']     = 'POSTGRESQL';
-$DB['SERVER']   = 'postgresql';
+$DB['SERVER']   = 'tasks.postgresql';
 $DB['PORT']     = '0';
 $DB['DATABASE'] = 'zabbix';
 $DB['USER']     = 'zabbix';

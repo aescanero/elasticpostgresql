@@ -49,7 +49,7 @@ then
 #  Host IP: {HOST.IP}
 #  Agent port: {HOST.PORT}\', \'\', \'\', \'\', 1)\; |psql"
 fi
-echo "Hostname=$DIRNAME" >>/etc/zabbix/zabbix_agentd.conf
+#echo "Hostname=$DIRNAME" >>/etc/zabbix/zabbix_agentd.conf
 supervisorctl start zabbix_agentd &
 
 if bucardo show 2>&1 |grep FATAL >/dev/null
