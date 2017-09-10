@@ -27,7 +27,6 @@ RUN cd /data/build && mkdir -p /usr/local/bin && mkdir -p /usr/local/etc \
   && tar zxf 2.0.1.tar.gz && cp pg_monz-2.0.1/pg_monz/usr-local-bin/* /usr/local/bin/. \
   && cp pg_monz-2.0.1/pg_monz/usr-local-etc/* /usr/local/etc/. \
   && mkdir /etc/zabbix/zabbix_agentd.d && chown zabbix /etc/zabbix/zabbix_agentd.d \
-  && echo "Include=/etc/zabbix/zabbix_agentd.d/" >>/etc/zabbix/zabbix_agentd.conf \
   && cp pg_monz-2.0.1/pg_monz/zabbix_agentd.d/* /etc/zabbix/zabbix_agentd.d/.
 
 ADD usr/local/sbin/precheck.sh /usr/local/sbin/precheck.sh
@@ -38,6 +37,7 @@ ADD db/zabbix/zabbix.dump.gz /data/build/zabbix/zabbix.dump.gz
 #ADD db/zabbix/schema.sql /data/build/zabbix/schema.sql
 ADD etc/supervisord.conf /etc/supervisord.conf
 ADD etc/zabbix/zabbix_agentd.conf /etc/zabbix/zabbix_agentd.conf
+ADD usr/local/bin/pgsql_server_funcs.sh /usr/local/bin/pgsql_server_funcs.sh
 
 RUN chmod u+x /usr/local/sbin/precheck.sh \
     && chmod u+x /usr/local/sbin/postcheck.py
