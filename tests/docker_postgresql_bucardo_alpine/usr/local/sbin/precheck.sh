@@ -49,10 +49,6 @@ then
 #  Host IP: {HOST.IP}
 #  Agent port: {HOST.PORT}\', \'\', \'\', \'\', 1)\; |psql"
 fi
-#echo "Hostname=$DIRNAME" >>/etc/zabbix/zabbix_agentd.conf
-echo "Include=/etc/zabbix/zabbix_agentd.d/" >>/etc/zabbix/zabbix_agentd.conf
-supervisorctl start zabbix_agentd &
-
 if bucardo show 2>&1 |grep FATAL >/dev/null
 then
 cat > $HOME/.bucardorc <<EOL  
@@ -67,6 +63,7 @@ EOL
   bucardo install --bucardorc $HOME/.bucardorc --batch
   su - postgres -c "echo ALTER ROLE bucardo PASSWORD \'bucardo\'\;|psql"
   echo "*:5432:*:bucardo:bucardo" >$HOME/.pgpass
+  chmod 600 /root/.pgpass
   #bucardo add db db_${n} dbname=zabbix
   nslookup tasks.postgresql 2>/dev/null|sed s/\://|grep -v ^$|grep -v tasks \
   |awk '{print "/usr/local/bin/bucardo add db db_"$2" dbhost="$3" dbname=zabbix --force"}' \
@@ -91,5 +88,12 @@ EOL
   done
   bucardo start  
 fi
+
+#echo "Hostname=$DIRNAME" >>/etc/zabbix/zabbix_agentd.conf
+chmod 755 /usr/local/bin/*
+echo "Include=/etc/zabbix/zabbix_agentd.d/" >>/etc/zabbix/zabbix_agentd.conf
+supervisorctl start zabbix_agentd &
+
+sleep 5
 
 supervisorctl start postcheck.py

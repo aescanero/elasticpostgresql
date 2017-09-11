@@ -9,7 +9,7 @@ LABEL maintainer="Alejandro Escanero Blanco <aescanero@gmail.com>" \
 
 
 RUN apk update && apk add -u python py2-pip postgresql bash perl-dbd-pg \
- postgresql-plperl perl-boolean make perl-dbi wget zabbix-agent\
+ postgresql-plperl perl-boolean make perl-dbi wget zabbix-agent zabbix-utils\
  && pip install supervisor python-daemon\
  && rm -rf /var/cache/apk/*
 
