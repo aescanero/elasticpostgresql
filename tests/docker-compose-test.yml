@@ -39,6 +39,31 @@ services:
     ports:
       - "3100:80"
     tty: true
+    volumes:
+      - /proc:/data/proc
+      - /sys:/data/sys
+      - /dev:/data/dev
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  docker_magnolia_alpine:
+    image: localhost:5000/elasticpostgresql:docker_magnolia_alpine_v1
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - engine.labels.myproject.service == fe
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 128M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    networks:
+      - fe
+    tty: true
+
 networks:
   fe:
   be:
