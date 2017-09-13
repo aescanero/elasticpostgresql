@@ -28,8 +28,16 @@ RUN mv /data/build/$MYSQL_JDBC_PACKAGE/$MYSQL_JDBC_PACKAGE-bin.jar $CATALINA_HOM
 
 RUN wget -nv --no-check-certificate https://sourceforge.net/projects/magnolia/files/magnolia/Magnolia%20CE%205.5.6/magnolia-community-demo-webapp-5.5.6.war/download?use_mirror=autoselect -O $CATALINA_BASE/webapps/ROOT.war
 
+
+ADD usr/local/sbin/precheck.sh /usr/local/sbin/precheck.sh
 ADD etc/supervisord.conf /etc/supervisord.conf
 ADD etc/zabbix/zabbix_agentd.conf /etc/zabbix/zabbix_agentd.conf
+ADD usr/local/tomcat/conf/tomcat-users.xml /usr/local/tomcat/conf/tomcat-users.xml
+
+RUN adduser -S tomcat && chown tomcat /usr/local/tomcat -R \
+  && chmod u+x /usr/local/sbin/precheck.sh \
+  && ln -s /usr/share/java/postgresql-jdbc.jar /usr/local/tomcat/lib/postgresql-jdbc.jar \
+  && rm -rf /usr/local/tomcat/webapps/ROOT
 
 WORKDIR /data
 ENTRYPOINT ["supervisord", "--nodaemon", "--configuration", "/etc/supervisord.conf"]

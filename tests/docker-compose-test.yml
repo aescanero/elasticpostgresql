@@ -37,7 +37,7 @@ services:
       - fe
       - be
     ports:
-      - "3100:80"
+      - "3000:80"
     tty: true
     volumes:
       - /proc:/data/proc
@@ -56,12 +56,14 @@ services:
       resources:
         limits:
           cpus: '0.5'
-          memory: 128M
+          memory: 256M
         reservations:
           cpus: '0.1'
-          memory: 64M
+          memory: 128M
     networks:
-      - fe
+      - be
+    ports:
+      - "3100:8080"
     tty: true
 
 networks:
